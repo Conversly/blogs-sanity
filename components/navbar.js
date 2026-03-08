@@ -8,7 +8,7 @@ import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
 const leftmenu = [
   { label: "Home", href: "/" },
-  { label: "Archive", href: "/archive" }
+  // { label: "Archive", href: "/archive" }
 ];
 
 const rightmenu = [
