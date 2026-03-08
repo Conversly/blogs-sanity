@@ -48,14 +48,13 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function Layout({ children, params }) {
-  const settings = await getSettings();
   return (
     <>
-      <Navbar {...settings} />
-
-      <div>{children}</div>
-
-      <Footer {...settings} />
+      <Navbar />
+      {/* Spacer for fixed navbar */}
+      <div className="h-[100px]" />
+      <main>{children}</main>
+      <Footer />
     </>
   );
 }

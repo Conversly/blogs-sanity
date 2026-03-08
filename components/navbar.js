@@ -1,124 +1,169 @@
 "use client";
 
-import { Fragment } from "react";
-import { Menu, Transition, Disclosure } from "@headlessui/react";
-import Container from "@/components/container";
+import { Fragment, useState, useEffect, useRef } from "react";
+import { Disclosure } from "@headlessui/react";
 import Link from "next/link";
 import Image from "next/image";
-import { urlForImage } from "@/lib/sanity/image";
-import cx from "clsx";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { myLoader } from "@/utils/all";
+
+const leftmenu = [
+  { label: "Home", href: "/" },
+  { label: "Archive", href: "/archive" }
+];
+
+const rightmenu = [
+  {
+    label: "About",
+    href: process.env.NEXT_PUBLIC_VERLY_WEBSITE_URL
+      ? `${process.env.NEXT_PUBLIC_VERLY_WEBSITE_URL}/about`
+      : "/about",
+    external: true
+  },
+  {
+    label: "Documentation",
+    href: process.env.NEXT_PUBLIC_VERLY_DOCS_WEBSITE_URL
+      ? `${process.env.NEXT_PUBLIC_VERLY_DOCS_WEBSITE_URL}`
+      : "https://docs.verlyai.xyz",
+    external: true
+  }
+];
+
+const mobilemenu = [...leftmenu, ...rightmenu];
 
 export default function Navbar(props) {
-  const leftmenu = [
-    {
-      label: "Home",
-      href: "/"
-    },
-    {
-      label: "About",
-      href: "/about"
-    },
-    {
-      label: "Contact",
-      href: "/contact"
-    }
-  ];
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  const rightmenu = [
-    {
-      label: "Archive",
-      href: "/archive"
-    },
-    {
-      label: "Pro Version",
-      href: "https://stablo-pro.web3templates.com/",
-      external: true,
-      badge: "new"
-    },
-    {
-      label: "Download",
-      href: "https://web3templates.com/templates/stablo-minimal-blog-website-template",
-      external: true
-    }
-  ];
+  useEffect(() => {
+    const scrollContainer = window;
 
-  const mobilemenu = [...leftmenu, ...rightmenu];
+    const controlNavbar = () => {
+      if (typeof window !== "undefined") {
+        const currentScrollY = window.scrollY;
+
+        if (currentScrollY < 10) {
+          setIsVisible(true);
+          setIsScrolled(false);
+        } else {
+          setIsScrolled(true);
+          // Check if scrolling down
+          if (currentScrollY > lastScrollY.current) {
+            setIsVisible(false);
+          } else {
+            // Check if scrolling up
+            setIsVisible(true);
+          }
+        }
+
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    scrollContainer.addEventListener("scroll", controlNavbar);
+
+    return () => {
+      scrollContainer.removeEventListener("scroll", controlNavbar);
+    };
+  }, []);
+
+  const verlyWebsiteUrl = process.env.NEXT_PUBLIC_VERLY_WEBSITE_URL || "https://verlyai.xyz";
 
   return (
-    <Container>
-      <nav>
-        <Disclosure>
-          {({ open }) => (
-            <>
-              <div className="flex flex-wrap justify-between md:flex-nowrap md:gap-10">
-                <div className="order-1 hidden w-full flex-col items-center justify-start md:order-none md:flex md:w-auto md:flex-1 md:flex-row md:justify-end">
-                  {leftmenu.map((item, index) => (
-                    <Fragment key={`${item.label}${index}`}>
-                      {item.children && item.children.length > 0 ? (
-                        <DropdownMenu
-                          menu={item}
-                          key={`${item.label}${index}`}
-                          items={item.children}
-                        />
-                      ) : (
-                        <Link
-                          href={item.href}
-                          key={`${item.label}${index}`}
-                          className="px-5 py-2 text-sm font-medium text-gray-600 hover:text-blue-500 dark:text-gray-400"
-                          target={item.external ? "_blank" : ""}
-                          rel={item.external ? "noopener" : ""}>
-                          {item.label}
-                        </Link>
-                      )}
-                    </Fragment>
-                  ))}
-                </div>
-                <div className="flex w-full items-center justify-between md:w-auto">
-                  <Link href="/" className="w-28 dark:hidden">
-                    {props.logo ? (
-                      <Image
-                        {...urlForImage(props.logo)}
-                        alt="Logo"
-                        priority={true}
-                        sizes="(max-width: 640px) 100vw, 200px"
-                      />
-                    ) : (
-                      <span className="block text-center">
-                        Stablo
-                      </span>
-                    )}
-                  </Link>
-                  <Link href="/" className="hidden w-28 dark:block">
-                    {props.logoalt ? (
-                      <Image
-                        {...urlForImage(props.logoalt)}
-                        alt="Logo"
-                        priority={true}
-                        sizes="(max-width: 640px) 100vw, 200px"
-                      />
-                    ) : (
-                      <span className="block text-center">
-                        Stablo
-                      </span>
-                    )}
-                  </Link>
+    <div className="fixed left-0 right-0 top-0 z-50 flex justify-center px-4 pt-4 md:pt-6">
+      <nav
+        className={`transition-all duration-300 w-full max-w-7xl
+          ${isVisible ? "translate-y-0" : "-translate-y-[150%]"}
+          ${isScrolled ? "shadow-lg" : ""}
+        `}
+      >
+        <div
+          className="flex h-[74px] items-center justify-between px-4 md:px-6
+            rounded-none md:rounded-[47px]
+            border border-gray-200/60 dark:border-gray-700/60
+            bg-white/70 dark:bg-gray-900/70
+            backdrop-blur-md
+            shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]
+          "
+        >
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 shrink-0">
+            <Image
+              src="/verly_logo.png"
+              alt="VerlyAI Logo"
+              width={139}
+              height={33}
+              className="h-8 w-auto object-contain"
+              onError={(e) => {
+                // Fallback if image fails to load
+                e.target.style.display = "none";
+              }}
+            />
+            <span className="font-bold text-xl text-gray-900 dark:text-white hidden sm:block">
+              VerlyAI
+            </span>
+          </Link>
+
+          {/* Navigation Links - Desktop */}
+          <div className="hidden md:flex items-center gap-1">
+            {leftmenu.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+            {rightmenu.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                target={item.external ? "_blank" : ""}
+                rel={item.external ? "noopener noreferrer" : ""}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* CTA Button - Desktop */}
+          <div className="hidden md:block">
+            <Link
+              href={verlyWebsiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            >
+              Get Started
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <Disclosure>
+            {({ open }) => (
+              <>
+                <div className="md:hidden">
                   <Disclosure.Button
                     aria-label="Toggle Menu"
-                    className="ml-auto rounded-md px-2 py-1 text-gray-500 focus:text-blue-500 focus:outline-none dark:text-gray-300 md:hidden ">
+                    className="ml-auto rounded-md px-2 py-1 text-gray-500 hover:text-blue-600 focus:text-blue-600 focus:outline-none dark:text-gray-300"
+                  >
                     <svg
                       className="h-6 w-6 fill-current"
                       xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24">
-                      {open && (
+                      viewBox="0 0 24 24"
+                    >
+                      {open ? (
                         <path
                           fillRule="evenodd"
                           clipRule="evenodd"
                           d="M18.278 16.864a1 1 0 0 1-1.414 1.414l-4.829-4.828-4.828 4.828a1 1 0 0 1-1.414-1.414l4.828-4.829-4.828-4.828a1 1 0 0 1 1.414-1.414l4.829 4.828 4.828-4.828a1 1 0 1 1 1.414 1.414l-4.828 4.829 4.828 4.828z"
                         />
-                      )}
-                      {!open && (
+                      ) : (
                         <path
                           fillRule="evenodd"
                           d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z"
@@ -128,120 +173,51 @@ export default function Navbar(props) {
                   </Disclosure.Button>
                 </div>
 
-                <div className="order-2 hidden w-full flex-col items-center justify-start md:order-none md:flex md:w-auto md:flex-1 md:flex-row">
-                  {rightmenu.map((item, index) => (
-                    <Fragment key={`${item.label}${index}`}>
-                      {item.children && item.children.length > 0 ? (
-                        <DropdownMenu
-                          menu={item}
-                          key={`${item.label}${index}`}
-                          items={item.children}
-                        />
-                      ) : (
+                <Disclosure.Panel className="md:hidden absolute top-full left-4 right-4 mt-2">
+                  <div
+                    className="rounded-2xl border border-gray-200 dark:border-gray-700
+                      bg-white/95 dark:bg-gray-900/95
+                      backdrop-blur-md
+                      shadow-lg
+                      p-4 space-y-2"
+                  >
+                    {mobilemenu.map((item) => (
+                      <Fragment key={item.label}>
                         <Link
                           href={item.href}
-                          key={`${item.label}${index}`}
-                          className="px-5 py-2 text-sm font-medium text-gray-600 hover:text-blue-500 dark:text-gray-400"
                           target={item.external ? "_blank" : ""}
-                          rel={item.external ? "noopener" : ""}>
-                          <span> {item.label}</span>
-                          {item.badge && (
-                            <span className="ml-2 rounded bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-600 dark:bg-cyan-200 dark:text-blue-800 ">
-                              {item.badge}
-                            </span>
+                          rel={item.external ? "noopener noreferrer" : ""}
+                          className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        >
+                          {item.label}
+                          {item.external && (
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
                           )}
                         </Link>
-                      )}
-                    </Fragment>
-                  ))}
-                </div>
-              </div>
-              <Disclosure.Panel>
-                <div className="order-2 -ml-4 mt-4 flex w-full flex-col items-center justify-start md:hidden">
-                  {mobilemenu.map((item, index) => (
-                    <Fragment key={`${item.label}${index}`}>
-                      {item.children && item.children.length > 0 ? (
-                        <DropdownMenu
-                          menu={item}
-                          key={`${item.label}${index}`}
-                          items={item.children}
-                          mobile={true}
-                        />
-                      ) : (
-                        <Link
-                          href={item.href}
-                          key={`${item.label}${index}`}
-                          className="w-full px-5 py-2 text-sm font-medium text-gray-600 hover:text-blue-500 dark:text-gray-400"
-                          target={item.external ? "_blank" : ""}
-                          rel={item.external ? "noopener" : ""}>
-                          {item.label}
-                        </Link>
-                      )}
-                    </Fragment>
-                  ))}
-                </div>
-              </Disclosure.Panel>
-            </>
-          )}
-        </Disclosure>
+                      </Fragment>
+                    ))}
+                    <div className="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                      <Link
+                        href={verlyWebsiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-colors"
+                      >
+                        Get Started
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </Disclosure.Panel>
+              </>
+            )}
+          </Disclosure>
+        </div>
       </nav>
-    </Container>
+    </div>
   );
 }
-
-const DropdownMenu = ({ menu, items, mobile }) => {
-  return (
-    <Menu
-      as="div"
-      className={cx("relative text-left", mobile && "w-full")}>
-      {({ open }) => (
-        <>
-          <Menu.Button
-            className={cx(
-              "flex items-center gap-x-1 rounded-md px-5 py-2 text-sm font-medium  outline-none transition-all focus:outline-none focus-visible:text-indigo-500 focus-visible:ring-1 dark:focus-visible:bg-gray-800",
-              open
-                ? "text-blue-500 hover:text-blue-500"
-                : " text-gray-600 dark:text-gray-400 ",
-              mobile ? "w-full px-4 py-2 " : "inline-block px-4 py-2"
-            )}>
-            <span>{menu.label}</span>
-            <ChevronDownIcon className="mt-0.5 h-4 w-4" />
-          </Menu.Button>
-          <Transition
-            as={Fragment}
-            enter="lg:transition lg:ease-out lg:duration-100"
-            enterFrom="lg:transform lg:opacity-0 lg:scale-95"
-            enterTo="lg:transform lg:opacity-100 lg:scale-100"
-            leave="lg:transition lg:ease-in lg:duration-75"
-            leaveFrom="lg:transform lg:opacity-100 lg:scale-100"
-            leaveTo="lg:transform lg:opacity-0 lg:scale-95">
-            <Menu.Items
-              className={cx(
-                "z-20 origin-top-left rounded-md  focus:outline-none  lg:absolute lg:left-0  lg:w-56",
-                !mobile && "bg-white shadow-lg  dark:bg-gray-800"
-              )}>
-              <div className={cx(!mobile && "py-3")}>
-                {items.map((item, index) => (
-                  <Menu.Item as="div" key={`${item.title}${index}`}>
-                    {({ active }) => (
-                      <Link
-                        href={item?.path ? item.path : "#"}
-                        className={cx(
-                          "flex items-center space-x-2 px-5 py-2 text-sm lg:space-x-4",
-                          active
-                            ? "text-blue-500"
-                            : "text-gray-700 hover:text-blue-500 focus:text-blue-500 dark:text-gray-300"
-                        )}>
-                        <span> {item.title}</span>
-                      </Link>
-                    )}
-                  </Menu.Item>
-                ))}
-              </div>
-            </Menu.Items>
-          </Transition>
-        </>
-      )}
-    </Menu>
-  );
-};

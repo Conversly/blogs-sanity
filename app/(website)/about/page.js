@@ -1,10 +1,8 @@
-import { getAllAuthors, getSettings } from "@/lib/sanity/client";
-import About from "./about";
+import { redirect } from "next/navigation";
 
-export default async function AboutPage() {
-  const authors = await getAllAuthors();
-  const settings = await getSettings();
-  return <About settings={settings} authors={authors} />;
+export default function AboutPage() {
+  const verlyWebsiteUrl = process.env.NEXT_PUBLIC_VERLY_WEBSITE_URL || "https://verlyai.xyz";
+
+  // Perform a server-side redirect to the official Verly AI about page
+  redirect(`${verlyWebsiteUrl}/about`);
 }
-
-// export const revalidate = 60;

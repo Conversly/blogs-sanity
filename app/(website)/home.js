@@ -22,11 +22,23 @@ export default function Post({ posts }) {
               <PostList key={post._id} post={post} aspect="square" />
             ))}
           </div>
-          <div className="mt-10 flex justify-center">
+          <div className="mt-12 flex justify-center">
             <Link
               href="/archive"
-              className="relative inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 pl-4 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 disabled:pointer-events-none disabled:opacity-40 dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300">
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-600 hover:shadow-lg hover:-translate-y-0.5">
               <span>View all Posts</span>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
             </Link>
           </div>
         </Container>
