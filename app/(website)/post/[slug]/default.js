@@ -8,6 +8,8 @@ import { parseISO, format } from "date-fns";
 
 import CategoryLabel from "@/components/blog/category";
 import AuthorCard from "@/components/blog/authorCard";
+import TableOfContents from "@/components/blog/TableOfContents";
+import SidebarCTA from "@/components/blog/SidebarCTA";
 
 export default function Post(props) {
   const { loading, post } = props;
@@ -90,19 +92,32 @@ export default function Post(props) {
       </div>
 
       <Container>
-        <article className="mx-auto max-w-screen-md ">
-          <div className="prose mx-auto my-3 dark:prose-invert prose-a:text-blue-600">
-            {post.body && <PortableText value={post.body} />}
+        <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[1fr_300px]">
+          {/* Main Content */}
+          <div className="order-first">
+            <article className="prose mx-auto max-w-none dark:prose-invert prose-a:text-blue-600">
+              {post.body && <PortableText value={post.body} />}
+            </article>
+
+            <div className="mb-7 mt-7 flex justify-center">
+              <Link
+                href="/"
+                className="bg-brand-secondary/20 rounded-full px-5 py-2 text-sm text-blue-600 dark:text-blue-500">
+                ← View all posts
+              </Link>
+            </div>
+
+            {post.author && <AuthorCard author={post.author} />}
           </div>
-          <div className="mb-7 mt-7 flex justify-center">
-            <Link
-              href="/"
-              className="bg-brand-secondary/20 rounded-full px-5 py-2 text-sm text-blue-600 dark:text-blue-500 ">
-              ← View all posts
-            </Link>
-          </div>
-          {post.author && <AuthorCard author={post.author} />}
-        </article>
+
+          {/* Sidebar */}
+          <aside className="order-last">
+            <div className="hidden lg:sticky lg:top-24 lg:flex lg:flex-col lg:gap-6">
+              <TableOfContents />
+              <SidebarCTA />
+            </div>
+          </aside>
+        </div>
       </Container>
     </>
   );
