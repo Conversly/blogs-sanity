@@ -95,7 +95,7 @@ export default function Post(props) {
         <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[1fr_300px]">
           {/* Main Content */}
           <div className="order-first">
-            <article className="prose mx-auto max-w-none dark:prose-invert prose-a:text-blue-600">
+            <article className="prose prose-lg prose-neutral mx-auto max-w-none dark:prose-invert prose-a:text-blue-600 prose-headings:font-semibold prose-img:rounded-xl">
               {post.body && <PortableText value={post.body} />}
             </article>
 
