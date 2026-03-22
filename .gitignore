@@ -25,12 +25,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env
-.env.local
-.env.development
 .env.development.local
 .env.test.local
-.env.production
 .env.production.local
 
 # vercel
@@ -46,3 +42,4 @@ next-env.d.ts
 # Sanity CMS
 /.sanity
 /dist
+config.bat

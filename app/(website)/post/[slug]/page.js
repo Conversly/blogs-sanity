@@ -17,22 +17,23 @@ export async function generateMetadata({ params }) {
     return { title: "Blog Post | VerlyAI Blog" };
   }
 
+  const postTitle = String(post.title);
   const description =
     post.excerpt ||
     "Read the latest insights from the VerlyAI team on AI customer support, voice agents, and WhatsApp automation.";
   const canonical = `${SITE_URL}/post/${params.slug}`;
   const image = urlForImage(post.mainImage);
-  const imageAlt = post.mainImage?.alt || post.title;
+  const imageAlt = String(post.mainImage?.alt || postTitle);
 
   return {
-    title: post.title,
+    title: postTitle,
     description,
     alternates: {
       canonical,
     },
     openGraph: {
       type: "article",
-      title: post.title,
+      title: postTitle,
       description,
       url: canonical,
       siteName: "VerlyAI Blog",
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }) {
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
-      title: post.title,
+      title: postTitle,
       description,
       site: "@VerlyAI",
       creator: "@VerlyAI",
