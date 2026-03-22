@@ -3,43 +3,61 @@ import Footer from "@/components/footer";
 import { urlForImage } from "@/lib/sanity/image";
 import Navbar from "@/components/navbar";
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://blogs.verlyai.xyz";
+
 async function sharedMetaData(params) {
   const settings = await getSettings();
 
   return {
-    // enable this for resolving opengraph image
-    // metadataBase: new URL(settings.url),
+    metadataBase: new URL(SITE_URL),
     title: {
-      default:
-        settings?.title ||
-        "Stablo - Blog Template for Next.js & Sanity CMS",
-      template: "%s | Stablo"
+      default: "VerlyAI Blog — AI Agents, Voice & WhatsApp Support",
+      template: "%s | VerlyAI Blog",
     },
     description:
       settings?.description ||
-      "Stablo - popular open-source next.js and sanity blog template",
-    keywords: ["Next.js", "Sanity", "Tailwind CSS"],
-    authors: [{ name: "Surjith" }],
-    canonical: settings?.url,
+      "Articles from VerlyAI on deploying AI customer support agents: voice AI, WhatsApp automation, web chat, RAG, and scaling support without extra headcount.",
+    keywords: [
+      "AI customer support",
+      "voice AI agents",
+      "WhatsApp automation",
+      "AI chatbot",
+      "VerlyAI",
+      "customer support automation",
+      "conversational AI",
+      "AI agents blog",
+      "omnichannel support",
+    ],
+    authors: [{ name: "VerlyAI Team" }],
+    creator: "VerlyAI",
+    publisher: "VerlyAI",
+    alternates: {
+      canonical: SITE_URL,
+    },
     openGraph: {
+      siteName: "VerlyAI Blog",
       images: [
         {
           url:
             urlForImage(settings?.openGraphImage)?.src ||
-            "/img/opengraph.jpg",
-          width: 800,
-          height: 600
-        }
-      ]
+            "https://verlyai.xyz/verly_logo.png",
+          width: 1200,
+          height: 630,
+          alt: "VerlyAI Blog — AI Customer Support Insights",
+        },
+      ],
     },
     twitter: {
-      title: settings?.title || "Stablo Template",
-      card: "summary_large_image"
+      title: "VerlyAI Blog — AI Agents, Voice & WhatsApp Support",
+      card: "summary_large_image",
+      site: "@VerlyAI",
+      creator: "@VerlyAI",
     },
     robots: {
       index: true,
-      follow: true
-    }
+      follow: true,
+    },
   };
 }
 

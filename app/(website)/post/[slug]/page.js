@@ -1,6 +1,10 @@
 import PostPage from "./default";
 
 import { getAllPostsSlugs, getPostBySlug } from "@/lib/sanity/client";
+import { urlForImage } from "@/lib/sanity/image";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://blogs.verlyai.xyz";
 
 export async function generateStaticParams() {
   return await getAllPostsSlugs();
@@ -8,7 +12,61 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const post = await getPostBySlug(params.slug);
-  return { title: post.title };
+
+  if (!post || !post.title) {
+    return { title: "Blog Post | VerlyAI Blog" };
+  }
+
+  const description =
+    post.excerpt ||
+    "Read the latest insights from the VerlyAI team on AI customer support, voice agents, and WhatsApp automation.";
+  const canonical = `${SITE_URL}/post/${params.slug}`;
+  const image = urlForImage(post.mainImage);
+  const imageAlt = post.mainImage?.alt || post.title;
+
+  return {
+    title: post.title,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description,
+      url: canonical,
+      siteName: "VerlyAI Blog",
+      publishedTime: post.publishedAt ?? post._createdAt,
+      modifiedTime: post._updatedAt ?? post.publishedAt ?? post._createdAt,
+      authors: [post.author?.name || "VerlyAI"],
+      section: post.categories?.[0]?.title || "Blog",
+      images: image
+        ? [
+            {
+              url: image.src,
+              width: image.width,
+              height: image.height,
+              alt: imageAlt,
+            },
+          ]
+        : [
+            {
+              url: "https://verlyai.xyz/verly_logo.png",
+              width: 512,
+              height: 512,
+              alt: "VerlyAI Blog",
+            },
+          ],
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title: post.title,
+      description,
+      site: "@VerlyAI",
+      creator: "@VerlyAI",
+      images: image ? [image.src] : undefined,
+    },
+  };
 }
 
 export default async function PostDefault({ params }) {
